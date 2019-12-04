@@ -2,7 +2,10 @@ import http.server
 from pathlib import Path
 import datetime
 import os
-from website import Website
+from flask import Flask
+
+app = Flask(__name__)
+DATA_DIR_PATH = '/'
 
 FILE_TIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
 WEB_TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -42,28 +45,29 @@ _THOUGHT_LINE_HTML = '''
 </tr>
 '''
 
-website = Website()
-
 def get_users_list():
     users_list = []
-    for user_dir in Path(os.getcwd()).iterdir():
+    for user_dir in Path(DATA_DIR_PATH).iterdir():
         users_list.append(user_dir.name)
     return users_list
 
-@website.route('/')
+@app.route('/')
 def get_users_page():
     users_html = []
     for user_dir in get_users_list():
         users_html.append(_USER_LINE_HTML.format(user_id=user_dir))
     index_html = _INDEX_HTML.format(users='\n'.join(users_html))
-    return 200, index_html
+    return index_html
+    #return render_template('page.html'), 201
 
-@website.route('/users/([0-9]+)')
+
+@app.route('/users/<int:user_id>')
 def get_user_thoughts(user_id):
+    user_id = str(user_id)
     if user_id not in get_users_list():
-        return 404, ''
+        return ''
     thoughts_list_html = []
-    for file in Path(os.getcwd() + '/' + user_id).iterdir():
+    for file in Path(DATA_DIR_PATH + '/' + user_id).iterdir():
         f = file.open('r')
         for thought in f.readlines():
             thought_time = file.name[:-4]
@@ -71,13 +75,19 @@ def get_user_thoughts(user_id):
             thought_time = thought_time.strftime(WEB_TIME_FORMAT)
             thoughts_list_html.append(_THOUGHT_LINE_HTML.format(thought_time = thought_time, thought = thought))
     user_thought_html = _USER_PAGE_HTML.format(user_id = user_id, thoughts = '\n'.join(thoughts_list_html))    
-    return 200, user_thought_html
+    return user_thought_html
 
 def run_webserver(address, data_dir):
-    os.chdir(data_dir)
-    website.run(address)
+    global DATA_DIR_PATH
+    DATA_DIR_PATH = data_dir
+    host = address[0]
+    port = address[1]
+    #TODO - remove debug
+    app.run(host=host, port=port, debug=True)
+
 
 def main(argv):
+    #TODO - make prettier
     if len(argv) != 3:
         print(f'USAGE: {argv[0]} <address> <data_dir>')
         return 1
