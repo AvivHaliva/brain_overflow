@@ -57,7 +57,7 @@ def get_users_page():
     for user_dir in get_users_list():
         users_html.append(_USER_LINE_HTML.format(user_id=user_dir))
     index_html = _INDEX_HTML.format(users='\n'.join(users_html))
-    return index_html
+    return index_html , 200
     #return render_template('page.html'), 201
 
 
@@ -65,7 +65,7 @@ def get_users_page():
 def get_user_thoughts(user_id):
     user_id = str(user_id)
     if user_id not in get_users_list():
-        return ''
+        return '', 404
     thoughts_list_html = []
     for file in Path(DATA_DIR_PATH + '/' + user_id).iterdir():
         f = file.open('r')
@@ -75,7 +75,7 @@ def get_user_thoughts(user_id):
             thought_time = thought_time.strftime(WEB_TIME_FORMAT)
             thoughts_list_html.append(_THOUGHT_LINE_HTML.format(thought_time = thought_time, thought = thought))
     user_thought_html = _USER_PAGE_HTML.format(user_id = user_id, thoughts = '\n'.join(thoughts_list_html))    
-    return user_thought_html
+    return user_thought_html , 200
 
 def run_webserver(address, data_dir):
     global DATA_DIR_PATH
