@@ -1,7 +1,5 @@
-import http.server
 from pathlib import Path
 import datetime
-import os
 from flask import Flask
 import click
 
@@ -59,8 +57,6 @@ def get_users_page():
         users_html.append(_USER_LINE_HTML.format(user_id=user_dir))
     index_html = _INDEX_HTML.format(users='\n'.join(users_html))
     return index_html , 200
-    #return render_template('page.html'), 201
-
 
 @app.route('/users/<int:user_id>')
 def get_user_thoughts(user_id):
@@ -74,9 +70,10 @@ def get_user_thoughts(user_id):
             thought_time = file.name[:-4]
             thought_time = datetime.datetime.strptime(thought_time, FILE_TIME_FORMAT)
             thought_time = thought_time.strftime(WEB_TIME_FORMAT)
-            thoughts_list_html.append(_THOUGHT_LINE_HTML.format(thought_time = thought_time, thought = thought))
-    user_thought_html = _USER_PAGE_HTML.format(user_id = user_id, thoughts = '\n'.join(thoughts_list_html))    
-    return user_thought_html , 200
+            thoughts_list_html.append(_THOUGHT_LINE_HTML.format(thought_time=thought_time, thought=thought))
+    user_thought_html = \
+        _USER_PAGE_HTML.format(user_id=user_id, thoughts='\n'.join(thoughts_list_html))    
+    return user_thought_html, 200
 
 @click.command()
 @click.argument('address')
@@ -91,16 +88,7 @@ def run_webserver(address, data_dir):
     app.run(host=host, port=port, debug=True)
 
 '''
-def main(argv):
-    #TODO - make prettier
-    if len(argv) != 3:
-        print(f'USAGE: {argv[0]} <address> <data_dir>')
-        return 1
-    try:
-        address_and_port = argv[1].split(':')
-        address_and_port[1] = int (address_and_port[1])
-        address_and_port = tuple(address_and_port)
-        run_webserver(address_and_port, argv[2])
     except Exception as error:
         print(f'ERROR: {error}')
-        return 1'''
+        return 1
+'''
