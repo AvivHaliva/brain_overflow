@@ -5,10 +5,10 @@ from datetime import date
 import threading
 from pathlib import Path
 import struct
-from cli import CommandLineInterface
 from thought import Thought
 from utils import Connection
 from utils import Listener
+import click
 
 MAX_CLIENTS_NUMBER = 1000
 HEADER_FORMAT = 'lli'
@@ -51,8 +51,9 @@ class Handler(threading.Thread):
         finally:
             self.lock.release()
 
-cli = CommandLineInterface()
-
+@click.command()
+@click.argument("address")
+@click.argument("data_dir")
 def run_server(address, data_dir):
     address_and_port = address.split(':')
     address_and_port[1] = int (address_and_port[1])
@@ -65,26 +66,3 @@ def run_server(address, data_dir):
         client = server.accept()
         handler = Handler(client, str(data_dir))
         handler.start()
-
-@cli.command
-def run(address, data):
-    run_server(address, data)
-
-
-def main(argv):
-    cli.main()
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main(sys.argv))
-
-
-
-
-
-
-
-
-
-
-    

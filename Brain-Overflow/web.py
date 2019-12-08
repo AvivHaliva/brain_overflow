@@ -3,6 +3,7 @@ from pathlib import Path
 import datetime
 import os
 from flask import Flask
+import click
 
 app = Flask(__name__)
 DATA_DIR_PATH = '/'
@@ -77,15 +78,19 @@ def get_user_thoughts(user_id):
     user_thought_html = _USER_PAGE_HTML.format(user_id = user_id, thoughts = '\n'.join(thoughts_list_html))    
     return user_thought_html , 200
 
+@click.command()
+@click.argument('address')
+@click.argument('data_dir')
 def run_webserver(address, data_dir):
     global DATA_DIR_PATH
     DATA_DIR_PATH = data_dir
-    host = address[0]
-    port = address[1]
+    address_and_port = address.split(':')
+    port = int (address_and_port[1])
+    host = address_and_port[0]
     #TODO - remove debug
     app.run(host=host, port=port, debug=True)
 
-
+'''
 def main(argv):
     #TODO - make prettier
     if len(argv) != 3:
@@ -98,8 +103,4 @@ def main(argv):
         run_webserver(address_and_port, argv[2])
     except Exception as error:
         print(f'ERROR: {error}')
-        return 1
-
-if __name__ == '__main__':
-    import sys
-    sys.exit(main(sys.argv))
+        return 1'''
