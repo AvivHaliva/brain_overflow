@@ -1,11 +1,12 @@
 import socket
 
 INCOMPLETE_MESSAGE_ERR = 'incomplete message'
+MESSAGE_SIZE_FORMAT = 'I'
+MESSAGE_DATA_FORMAT '{0}s'
 
 class Connection:
     def __init__(self, socket):
     	self.socket = socket
-
     #managed context
     def __enter__(self):
     	return self
@@ -32,6 +33,11 @@ class Connection:
     	# send all the data on the socket
     	self.socket.sendall(data)
 
+    def send_message(self, data):
+        message_size = 4 + len(data)
+        message = struct.pack(MESSAGE_SIZE_FORMAT + MESSAGE_DATA_FORMAT, message_size, data)
+        send(message)
+
     def receive(self, size):
     	# receive <size> bytes or raise an exception
     	data = bytearray()
@@ -41,6 +47,13 @@ class Connection:
     			raise Exception(INCOMPLETE_MESSAGE_ERR)
     		data.extend(packet)
     	return data
+
+    def receive_message(self):
+        data_size_bin = self.receive(struct.calcsize(MESSAGE_SIZE_FORMAT))
+        data_size = struct.unpack(MESSAGE_SIZE_FORMAT, struct.calcsize(MESSAGE_SIZE_FORMAT)) 
+        data_bin = self.receive(data_size)
+        data = struct.unpack_from(MESSAGE_DATA_FORMAT, data_bin, \
+            offset=struct.calcsize(MESSAGE_SIZE_FORMAT))
 
     def close(self):
     	# close the socket
