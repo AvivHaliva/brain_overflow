@@ -37,5 +37,3 @@ class Listener:
 		# create a socket for the specific connection and return it
 		client, address = self.server.accept()
 		return Connection(client)
-
-		

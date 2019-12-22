@@ -1,7 +1,7 @@
 import socket
 import time
 import datetime
-from datetime import date
+import datetime as dt
 import threading
 from pathlib import Path
 import struct
@@ -9,11 +9,14 @@ from thought import Thought
 from utils import Connection
 from utils import Listener
 import click
+from utils import protocol
+from utils import parser
+from utils import context
 
 MAX_CLIENTS_NUMBER = 1000
 HEADER_FORMAT = 'lli'
 INCOMPLETE_MESSAGE_ERR = 'incomplete message'
-TIME_RECORD_FORMAT = "%Y-%m-%d_%H-%M-%S"
+TIME_RECORD_FORMAT = "%Y-%m-%d_%H-%M-%S-%f" #TODO - change format to *5* ms!
 
 class Handler(threading.Thread):
     
@@ -24,32 +27,48 @@ class Handler(threading.Thread):
         self.connection = connection
         self.data_dir = data_dir
 
-    def run(self):
-        header = self.connection.receive(struct.calcsize(HEADER_FORMAT))
-        user_id, timestamp, thought_size = struct.unpack(HEADER_FORMAT, header)
-        raw_thought = self.connection.receive(thought_size)
-        thought = Thought.deserialize(header + raw_thought)
+    def run(self):s
+        #the server gets a hello message from the client
+        hello_message = self.connection.receive_message()
+        hello = protocol.Hello.deserialize(hello_message)
+        #the server sends a config message to the client
+        supported_parsers = parser.get_supported_functions()
+        config = protocol.Config(len(supported_parsers), list(supported_parsers.keys()))
+        self.connection.send_message(config.serialize())
+        #the server gets a snapshot from the client
+        snapshot_message = self.connection.receive_message()
+        snapshot = protocol.Snapshot.deserialize(snapshot_message)
+        #close the connection
         self.connection.close()
 
-        user_dir = self.data_dir + '/' + str(thought.user_id)
+        # generate the context for all parsers
+        user_dir = self.data_dir + '/' + str(hello.user_id)
         p = Path(user_dir)
         self.lock.acquire()
         try:        
             if not p.exists():
                 p.mkdir()
-            user_time_record = Path(user_dir + '/' + \
-                thought.timestamp.strftime(TIME_RECORD_FORMAT) +\
+            datetime = dt.datetime.fromtimestamp(snapshot.timestamp/1000.0)
+            print(datetime)
+            datetime_in_format = datetime.strftime(TIME_RECORD_FORMAT)
+            user_time_record_dir = Path(user_dir + '/' + \
+                datetime_in_format +\
                  '.txt')
+            ## TODO chnage time record to required format
+            if not user_time_record_dir.exists():
+                user_time_record_dir.mkdir()
 
-            thought_record = thought.thought
-            if user_time_record.exists():
-                thought_record = '\n' + thought_record
+            #parse the supported fields
+            con = context.Context()
+            con.directory = user_time_record_dir
+            for p in supported_parsers:
+                supported_parsers[p](con, snapshot)
 
-            with user_time_record.open(mode='a') as record:
-                record.write(thought_record)
+            #TODO - what about the case there are multiple snapshot is the same time??
 
         finally:
             self.lock.release()
+
 
 @click.command()
 @click.argument("address")

@@ -1,6 +1,8 @@
 import struct 
 import os
 import datetime as dt
+import click
+from utils import protocol
 
 USER_ID_BYTES_SIZE = 8
 USER_INFO_FIXED_SIZE = 17
@@ -12,7 +14,18 @@ class Reader:
 		self.offset = 0
 		with open(self.path, "rb") as file:
 			self.extract_user_info(file)
+
+	def __str__(self):
+		gender = 'other'
+		if self.user_gender == 'f':
+			gender = 'female'
+		elif self.user_gender == 'm':
+			gender = 'male'
+		return 'user {0}: {1}, born {2} ({3})'.format(self.user_id, self.user_name,dt.datetime.fromtimestamp(self.user_birth_date/1000.0).strftime('%d %B %Y'), gender)
 	
+	def __repr__(self):
+		return 'reader = Reader(PATH)'
+
 	def __iter__(self):
 		with open(self.path, "rb") as file:
 			for i in self.process_snapshots(file):
@@ -45,23 +58,37 @@ class Reader:
 		finally:
 			return
 
+	def bgr_to_rgb(raw_img_bin):
+		raw_img_bin = [raw_img_bin[i:i+3][::-1] for i in range(0, len(raw_img_bin), 3)]
+		return b''.join(raw_img_bin)
+
 	def process_snapshots(self, file):
 		ts_gen = self.gen_next_snapshot_ts(file)
 		for ts in ts_gen:
-			datetime = dt.datetime.fromtimestamp(ts/1000.0)
 			translation = self.read_var_in_requested_format(file, 24, 'ddd')
 			rotation = self.read_var_in_requested_format(file, 32, 'dddd')
 			color_image_dimension = self.read_var_in_requested_format(file,8, 'II')
 			color_image_size = color_image_dimension[0] * color_image_dimension[1]
 			color_image_vals = file.read(color_image_size*3)
+			color_image_vals = Reader.bgr_to_rgb(color_image_vals)
+			color_image = (*color_image_dimension, color_image_vals)
+
 			depth_image_dimension = self.read_var_in_requested_format(file,8, 'II')
 			depth_image_size = depth_image_dimension[0] * depth_image_dimension[1]
 			depth_image_vals = file.read(depth_image_size*4)
-			user_feelings = self.read_var_in_requested_format(file, 4*4, 'ffff')
-			#TODO - Create snapshot object?
-			yield datetime
+			depth_image_vals = Reader.bgr_to_rgb(depth_image_vals)
+			depth_image = (*depth_image_dimension, depth_image_vals)
 
-x = Reader('sample.mind')
-for s in x:
-	print(s)
+			user_feelings = self.read_var_in_requested_format(file, 4*4, 'ffff')
+			
+			yield protocol.Snapshot(ts, translation, rotation, color_image, depth_image, user_feelings)
+
+@click.command()
+@click.argument("path")
+def read(path):
+	reader = Reader(path)
+	print(reader)
+	for snapshot in reader:
+		print(snapshot)
+
 

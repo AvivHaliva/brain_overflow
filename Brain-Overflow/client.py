@@ -4,6 +4,8 @@ import struct
 from thought import Thought
 from utils import Connection
 import click
+from utils import Reader
+from utils import protocol
 
 @click.command()
 @click.argument('address')
@@ -23,3 +25,24 @@ def upload_thought(address, user_id, thought):
     connection.send(serialized_thought)
     print('done')
     connection.close()
+
+@click.command()
+@click.argument('path')
+@click.argument('address')
+def upload_sample(path, address):
+    reader = Reader(path)
+    address_and_port = address.split(':')
+    address_and_port[1] = int(address_and_port[1])
+    address_and_port = tuple(address_and_port)
+
+    for snapshot in reader:
+        with Connection.connect(*address_and_port) as connection:
+            hello_message = protocol.Hello(reader.user_id, reader.user_name, reader.user_birth_date, reader.user_gender)
+            connection.send_message(hello_message.serialize())
+            config_message = connection.receive_message()
+            config = protocol.Config.deserialize(config_message)
+            snapshot_message = protocol.Snapshot(snapshot.timestamp)
+            for field in config.fields:
+                setattr(snapshot_message,field, snapshot.__dict__[field])
+            connection.send_message(snapshot_message.serialize())
+        print(snapshot)
