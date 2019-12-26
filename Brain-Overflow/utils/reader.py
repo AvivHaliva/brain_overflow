@@ -16,6 +16,7 @@ class Reader:
 			self.extract_user_info(file)
 
 	def __str__(self):
+		#TODO - create a dict instead {'m':'male', 'f':'female'} etc.
 		gender = 'other'
 		if self.user_gender == 'f':
 			gender = 'female'
@@ -24,12 +25,13 @@ class Reader:
 		return 'user {0}: {1}, born {2} ({3})'.format(self.user_id, self.user_name,dt.datetime.fromtimestamp(self.user_birth_date/1000.0).strftime('%d %B %Y'), gender)
 	
 	def __repr__(self):
+		#TODO
 		return 'reader = Reader(PATH)'
 
 	def __iter__(self):
 		with open(self.path, "rb") as file:
-			for i in self.process_snapshots(file):
-				yield i
+			for snapshot in self.process_snapshots(file):
+				yield snapshot
 
 	def read_var_in_requested_format(self, file, bin_length, requested_format, decode=False):
 		var_bin_rep = file.read(bin_length)
