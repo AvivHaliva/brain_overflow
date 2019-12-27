@@ -1,9 +1,12 @@
 import json
 
 def parse_translation(context, snapshot):
-	with open(context.directory / 'translation.json', 'w') as writer:
-		translation = snapshot.translation
-		data = {"x": translation[0], "y": translation[1], "z": translation[2]}
-		json.dump(data, writer)
+	#TODO - change to x = snapshot.pose.translation.x
+	context.save('translation.json', json.dumps(dict(
+    	x = snapshot.translation[0],
+    	y = snapshot.translation[1],
+    	z = snapshot.translation[2],
+    	)))		
 
 parse_translation.field = 'translation'
+

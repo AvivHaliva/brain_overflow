@@ -61,8 +61,7 @@ class Handler(threading.Thread):
                 user_time_record_dir.mkdir()
 
             #parse the supported fields
-            con = context.Context()
-            con.directory = user_time_record_dir
+            con = context.Context(user_time_record_dir)
             for p in supported_parsers:
                 supported_parsers[p](con, snapshot)
 
