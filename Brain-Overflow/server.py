@@ -27,12 +27,15 @@ class Handler(threading.Thread):
         self.connection = connection
         self.data_dir = data_dir
 
-    def run(self):s
+    def run(self):
         #the server gets a hello message from the client
         hello_message = self.connection.receive_message()
         hello = protocol.Hello.deserialize(hello_message)
         #the server sends a config message to the client
-        supported_parsers = parser.get_supported_functions()
+        #TODO move parser initalization to the outside run / make singleton!
+        p = parser.Parser()
+        supported_parsers = p.supported_parsers
+        #supported_parsers = parser.get_supported_functions()
         config = protocol.Config(len(supported_parsers), list(supported_parsers.keys()))
         self.connection.send_message(config.serialize())
         #the server gets a snapshot from the client
@@ -52,8 +55,7 @@ class Handler(threading.Thread):
             print(datetime)
             datetime_in_format = datetime.strftime(TIME_RECORD_FORMAT)
             user_time_record_dir = Path(user_dir + '/' + \
-                datetime_in_format +\
-                 '.txt')
+                datetime_in_format )
             ## TODO chnage time record to required format
             if not user_time_record_dir.exists():
                 user_time_record_dir.mkdir()
