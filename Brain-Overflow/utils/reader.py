@@ -1,6 +1,4 @@
 import click
-from utils.file_readers import binary_reader as binary
-from utils.file_readers import protobuf_reader as proto
 import pathlib
 import importlib
 import sys
