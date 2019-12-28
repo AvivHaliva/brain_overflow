@@ -4,8 +4,7 @@ import struct
 from thought import Thought
 from utils import Connection
 import click
-#from utils import Reader
-from utils import BinaryReader
+from utils import Reader
 from utils import protocol
 
 @click.command()
@@ -31,9 +30,9 @@ def upload_thought(address, user_id, thought):
 @click.argument('path')
 @click.argument('address')
 @click.argument('format')
-def upload_sample(path, address, format):
-    #reader = Reader(path, format)
-    reader = BinaryReader(path)
+def upload_sample(path, address, file_format):
+    #TODO 
+    reader = Reader(path, file_format)
     address_and_port = address.split(':')
     address_and_port[1] = int(address_and_port[1])
     address_and_port = tuple(address_and_port)

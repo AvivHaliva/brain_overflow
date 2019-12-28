@@ -1,32 +1,55 @@
 import click
-import utils
+from utils.file_readers import binary_reader as binary
+from utils.file_readers import protobuf_reader as proto
+import pathlib
+import importlib
+import sys
 
 class Reader():
-	#TODO - maybe change to fantory?
 	def __init__(self, path, file_format):
-		self. path = path
-		if file_format == 'binary':
-			self.reader = utils.BinaryReader(path)
-		elif file_format == 'protobuf':
-			self.reader = utils.ProtobufReader(path)
-		else:
-		#TODO - raise error
-			return
+		self.supported_parsers = {}
+		self.load_file_parsers('/home/user/Brain-Overflow/Brain-Overflow/utils/file_readers/')
+		self.file_parser = self.get_file_parser(file_format)(path)
+		self.user = self.file_parser.get_user_info()
 
 	def __str__(self):
-		return str(self.reader)
+		pass
+
+	def __repr__(self):
+		pass
+		#return 'reader = Reader(<file>, <file_parser>).for example: reader = Reader('sample.mind',BinaryReader)'
 
 	def __iter__(self):
-		return self.reader.__iter__()
+		for snapshot in self.file_parser.process_file():
+			yield snapshot
 
+	def load_file_parsers(self, root):
+		root = pathlib.Path(root).absolute()
+		sys.path.insert(0, str(root.parent))
+		for path in root.iterdir():
+			if path.name.endswith('_reader.py'):
+				m = importlib.import_module(f'{root.name}.{path.stem}', package=root.name)
+				for att in dir(m):
+					if att.endswith('Reader'):
+						file_parser = getattr(m, att)
+						self.supported_parsers[file_parser.file_format] = file_parser
+
+	def get_file_parser(self, file_format):
+		try:
+			return self.supported_parsers[file_format.lower()]
+		except Exception as e:
+			print(e)
+			print(file_format)
+		finally:
+			pass
 
 @click.command()
 @click.argument("path")
 @click.argument("file_format")
 def read(path, file_format):
+	#TODO - change
 	reader = Reader(path, file_format)
-	print(reader)
+	print(reader.user)
 	for snapshot in reader:
 		print(snapshot)
-
 
