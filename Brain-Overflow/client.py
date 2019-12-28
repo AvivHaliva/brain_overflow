@@ -4,7 +4,8 @@ import struct
 from thought import Thought
 from utils import Connection
 import click
-from utils import Reader
+#from utils import Reader
+from utils import BinaryReader
 from utils import protocol
 
 @click.command()
@@ -29,13 +30,16 @@ def upload_thought(address, user_id, thought):
 @click.command()
 @click.argument('path')
 @click.argument('address')
-def upload_sample(path, address):
-    reader = Reader(path)
+@click.argument('format')
+def upload_sample(path, address, format):
+    #reader = Reader(path, format)
+    reader = BinaryReader(path)
     address_and_port = address.split(':')
     address_and_port[1] = int(address_and_port[1])
     address_and_port = tuple(address_and_port)
 
     for snapshot in reader:
+        print(snapshot)
         with Connection.connect(*address_and_port) as connection:
             hello_message = protocol.Hello(reader.user_id, reader.user_name, reader.user_birth_date, reader.user_gender)
             connection.send_message(hello_message.serialize())
@@ -45,4 +49,3 @@ def upload_sample(path, address):
             for field in config.fields:
                 setattr(snapshot_message,field, snapshot.__dict__[field])
             connection.send_message(snapshot_message.serialize())
-        print(snapshot)

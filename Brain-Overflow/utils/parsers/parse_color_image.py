@@ -10,10 +10,10 @@ def parse_color_image(context, snapshot):
 	path = context.path('color_image.jpg')
 	#TODO - chnage to -> size = snapshot.color_image.width, snapshot.color_image.heigh
 	size = width, height
-	image = Image.new('RGB', size)
-	#TODO - see Gittik's comment: ex06,Decemeber 11, 3:44 pm 
-	data_flat_pixel = [(data[i:i+3]) for i in range(0, len(data), 3)]
-	image.putdata(data_flat_pixel)
+	image = Image.frombytes('RGB', size, data)
+	#TODO - see Gittik's comment: ex06,Decemeber 11, 3:44 pm
+	#data_flat_pixel = [data[i:i+3] for i in range(0, len(data), 3)]
+	#image.putdata(data_flat_pixel)
 	#TODO - chnage to ->image.putdata(snapshot.color_image.data)
 	image.save(path)
 

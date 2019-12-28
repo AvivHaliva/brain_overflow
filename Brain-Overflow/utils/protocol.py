@@ -94,7 +94,7 @@ class Snapshot:
 		self.rotation = rotation
 		self.color_image = color_image
 		self.depth_image = depth_image
-		self.user_feelings = user_feelings
+		self.feelings = user_feelings
 
 	def __str__(self):
 		datetime = dt.datetime.fromtimestamp(self.timestamp/1000.0)
@@ -106,14 +106,14 @@ class Snapshot:
 		color_img_size = self.color_image[0]*self.color_image[1]
 		depth_img_size = self.depth_image[0]*self.depth_image[1]
 		if color_img_size == 0:
-			if depth_image == 0:
-				serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_0,self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1], self.depth_image[0], self.depth_image[1], *self.user_feelings)
+			if depth_img_size == 0:
+				serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_0,self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1], self.depth_image[0], self.depth_image[1], *self.feelings)
 			else:
-				serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_2.format(depth_img_size),self.timestamp, *self.translation, *self.rotation,self.color_image[0], self.color_image[1], self.depth_image[0], self.depth_image[1], self.depth_image[2], *self.user_feelings)
+				serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_2.format(depth_img_size*4),self.timestamp, *self.translation, *self.rotation,self.color_image[0], self.color_image[1], self.depth_image[0], self.depth_image[1], self.depth_image[2], *self.feelings)
 		elif depth_img_size == 0:
-			serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_1.format(color_img_size*3),self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1],*self.color_image[2], self.depth_image[0], self.depth_image[1], *self.user_feelings)
+			serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_1.format(color_img_size*3),self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1],*self.color_image[2], self.depth_image[0], self.depth_image[1], *self.feelings)
 		else:
-			serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_3.format(color_img_size*3, depth_img_size),self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1],*self.color_image[2],self.depth_image[0], self.depth_image[1], self.depth_image[2] *self.user_feelings)
+			serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_3.format(color_img_size*3, depth_img_size*4),self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1],*self.color_image[2],self.depth_image[0], self.depth_image[1], *self.depth_image[2], *self.feelings)
 		return serialized_snapshot
 
 	def deserialize(data):
@@ -126,15 +126,17 @@ class Snapshot:
 		offset = 'Q3d4dII'
 		color_image_vals = None
 		if color_img_size > 0:
-			color_image_vals = struct.unpack_from('{0}B'.format(color_img_size*3), data,struct.calcsize(offset))
-			offset += '{0}B'.format(color_img_size*3)
+			#color_image_vals = struct.unpack_from('{0}s'.format(color_img_size*3), data,struct.calcsize(offset))
+			offset_int = struct.calcsize(offset)
+			color_image_vals = data[offset_int : offset_int + color_img_size*3]
+			offset += '{0}s'.format(color_img_size*3)
 		depth_image_dim = struct.unpack_from('II', data,struct.calcsize(offset))
 		depth_image_size = depth_image_dim[0]*depth_image_dim[1]
 		offset += 'II'
 		depth_image_vals = None
 		if depth_image_size > 0:
-			depth_image_vals = struct.unpack_from('{0}f'.format(depth_img_size), data, struct.calcsize(offset))
-			offset += '{0}f'.format(depth_img_size)
+			depth_image_vals = struct.unpack_from('{0}f'.format(depth_image_size), data, struct.calcsize(offset))
+			offset += '{0}f'.format(depth_image_size)
 		feelings = struct.unpack_from('4f', data, struct.calcsize(offset))
 
 		color_image = (*color_img_dim, color_image_vals)

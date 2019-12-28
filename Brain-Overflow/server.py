@@ -41,6 +41,7 @@ class Handler(threading.Thread):
         #the server gets a snapshot from the client
         snapshot_message = self.connection.receive_message()
         snapshot = protocol.Snapshot.deserialize(snapshot_message)
+
         #close the connection
         self.connection.close()
 
@@ -49,6 +50,7 @@ class Handler(threading.Thread):
         p = Path(user_dir)
         self.lock.acquire()
         try:        
+            #TODO - change to context
             if not p.exists():
                 p.mkdir()
             datetime = dt.datetime.fromtimestamp(snapshot.timestamp/1000.0)
@@ -63,6 +65,7 @@ class Handler(threading.Thread):
             #parse the supported fields
             con = context.Context(user_time_record_dir)
             for p in supported_parsers:
+                print (p)
                 supported_parsers[p](con, snapshot)
 
             #TODO - what about the case there are multiple snapshot is the same time??
