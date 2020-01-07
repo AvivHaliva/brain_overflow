@@ -29,7 +29,7 @@ def upload_thought(address, user_id, thought):
 @click.command()
 @click.argument('path')
 @click.argument('address')
-@click.argument('format')
+@click.argument('file_format')
 def upload_sample(path, address, file_format):
     #TODO 
     reader = Reader(path, file_format)
