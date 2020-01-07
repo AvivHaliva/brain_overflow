@@ -53,8 +53,8 @@ class BinaryReader:
 		color_image_size = color_image_width * color_image_height
 		color_image_vals = self.file.read(3*color_image_size)
 		color_image_vals = BinaryReader.bgr_to_rgb(color_image_vals)
-		color_image = (color_image_height, color_image_width, *color_image_vals)
-
+		color_image = (color_image_height, color_image_width, color_image_vals)
+		
 		depth_image_width, depth_image_height = BinaryReader.read_in_format(self.file, 'II')
 		depth_image_size = depth_image_height * depth_image_width
 		depth_image_vals = self.file.read(4*depth_image_size)

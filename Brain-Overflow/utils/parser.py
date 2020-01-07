@@ -15,6 +15,9 @@ class Parser:
 				m = importlib.import_module(f'{root.name}.{path.stem}', package=root.name)
 				for f in dir(m):
 					if f.startswith('parse_'):
-						parse_f = getattr(m, f)
-						self.supported_parsers[parse_f.field] = parse_f
+						try:
+							parse_f = getattr(m, f)
+							self.supported_parsers[parse_f.field] = parse_f
+						except:
+							pass
 	

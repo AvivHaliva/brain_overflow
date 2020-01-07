@@ -40,7 +40,8 @@ def upload_sample(path, address, file_format):
     for snapshot in reader:
         print(snapshot)
         with Connection.connect(*address_and_port) as connection:
-            hello_message = protocol.Hello(reader.user_id, reader.user_name, reader.user_birth_date, reader.user_gender)
+            user = reader.user
+            hello_message = protocol.Hello(user.id, user.name, user.birth_date, user.gender)
             connection.send_message(hello_message.serialize())
             config_message = connection.receive_message()
             config = protocol.Config.deserialize(config_message)
