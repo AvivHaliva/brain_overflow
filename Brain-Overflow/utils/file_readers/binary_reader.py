@@ -46,15 +46,15 @@ class BinaryReader:
 		rotation_w, \
 		color_image_width, \
 		color_image_height = BinaryReader.read_in_format(self.file,'QdddddddII')
-
 		translation = (translation_x, translation_y, translation_z)
 		rotation = (rotation_x, rotation_y, rotation_z, rotation_w)
 		
 		color_image_size = color_image_width * color_image_height
 		color_image_vals = self.file.read(3*color_image_size)
+		color_image_vals = struct.unpack('{0}B'.format(color_image_size*3), color_image_vals)
 		color_image_vals = BinaryReader.bgr_to_rgb(color_image_vals)
 		color_image = (color_image_height, color_image_width, color_image_vals)
-		
+
 		depth_image_width, depth_image_height = BinaryReader.read_in_format(self.file, 'II')
 		depth_image_size = depth_image_height * depth_image_width
 		depth_image_vals = self.file.read(4*depth_image_size)
@@ -80,7 +80,11 @@ class BinaryReader:
 ##### Binary utilities #####
 	def bgr_to_rgb(raw_img_bin):
 		raw_img_bin = [raw_img_bin[i:i+3][::-1] for i in range(0, len(raw_img_bin), 3)]
-		return b''.join(raw_img_bin)
+		return [a for tup in raw_img_bin for a in tup]
+		#x = struct.pack('{0}B'.format(len(raw_img_bin)), *raw_img_bin)
+		#print(x[:1])
+		#return x
+		#return b''.join(raw_img_bin)
 
 	def read_in_format(file, requested_format):
 		bin_length = struct.calcsize(requested_format)
@@ -89,6 +93,7 @@ class BinaryReader:
 		return var_requested_repr
 
 BinaryReader.file_format = 'binary'
+
 
 
 

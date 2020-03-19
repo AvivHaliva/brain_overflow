@@ -45,9 +45,7 @@ class Connection:
     	# receive <size> bytes or raise an exception
     	data = bytearray()
     	while len(data) < size:
-            #import pdb;pdb.set_trace()
-            packet = self.socket.recv(size - len(data))
-            #import pdb;pdb.set_trace()
+            packet = self.socket.recv(size - len(data)) 
             if not packet:
                 raise Exception(INCOMPLETE_MESSAGE_ERR)
             data.extend(packet)

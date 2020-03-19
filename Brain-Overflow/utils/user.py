@@ -7,7 +7,8 @@ class User:
 		self.birth_date = birth_date
 		#TODO - gender?
 		#TODO - create a dict instead {'m':'male', 'f':'female'} etc.
-		self.gender = gender
+		#self.gender = gender
+		self.gender = 'f'
 
 	def __str__(self):
 		#TODO - move the date format to somewhere else
@@ -16,5 +17,6 @@ class User:
 	def birth_date_to_str(self):
 		return dt.datetime.fromtimestamp(self.birth_date/1000.0).strftime('%d %B %Y')
 		#TODO - fix birthdate error! 1970?
+
 	def __repr__(self):
 		pass
