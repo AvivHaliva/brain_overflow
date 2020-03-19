@@ -2,6 +2,7 @@ from cortex_pb2 import User, Snapshot
 import struct
 import gzip
 from utils import user
+from utils import protocol
 
 #TODO - make compatiable with the rest of the code
 class ProtobufReader:
@@ -36,9 +37,16 @@ class ProtobufReader:
 			while message:
 				snapshot = Snapshot()
 				snapshot.ParseFromString(message)
-				yield (snapshot.datetime, snapshot.pose.translation, snapshot.pose.rotation, snapshot.color_image, snapshot.depth_image, snapshot.feelings)
+				yield protocol.Snapshot(
+					snapshot.datetime,
+					(snapshot.pose.translation.x, snapshot.pose.translation.y, snapshot.pose.translation.z),
+					(snapshot.pose.rotation.x, snapshot.pose.rotation.y, snapshot.pose.rotation.z, snapshot.pose.rotation.w),
+					(snapshot.color_image.width, snapshot.color_image.height, snapshot.color_image.data),
+					(snapshot.depth_image.width, snapshot.depth_image.height, snapshot.depth_image.data),
+					(snapshot.feelings.hunger, snapshot.feelings.thirst, snapshot.feelings.exhaustion, snapshot.feelings.happiness))
 				message = self.get_next_message()
 		except Exception as e:
+			#TODO improve error handling
 			print(e)
 		finally:
 			self.file.close()

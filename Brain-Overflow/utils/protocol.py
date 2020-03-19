@@ -113,7 +113,7 @@ class Snapshot:
 		elif depth_img_size == 0:
 			serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_1.format(color_img_size*3),self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1],*self.color_image[2], self.depth_image[0], self.depth_image[1], *self.feelings)
 		else:
-			serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_3.format(color_img_size*3, depth_img_size*4),self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1], *self.color_image[2],self.depth_image[0], self.depth_image[1], *self.depth_image[2], *self.feelings)
+			serialized_snapshot = struct.pack(SNAPSHOT_MESSAGE_FORMAT_3.format(color_img_size*3, depth_img_size),self.timestamp, *self.translation, *self.rotation, self.color_image[0], self.color_image[1], *self.color_image[2],self.depth_image[0], self.depth_image[1], *self.depth_image[2], *self.feelings)
 		return serialized_snapshot
 
 	def deserialize(data):
@@ -129,7 +129,8 @@ class Snapshot:
 			#color_image_vals = struct.unpack_from('{0}s'.format(color_img_size*3), data,struct.calcsize(offset))
 			offset_int = struct.calcsize(offset)
 			color_image_vals = data[offset_int : offset_int + color_img_size*3]
-			offset += '{0}s'.format(color_img_size*3)
+			offset += '{0}B'.format(color_img_size*3)
+
 		depth_image_dim = struct.unpack_from('II', data,struct.calcsize(offset))
 		depth_image_size = depth_image_dim[0]*depth_image_dim[1]
 		offset += 'II'

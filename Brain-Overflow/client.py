@@ -38,7 +38,6 @@ def upload_sample(path, address, file_format):
     address_and_port = tuple(address_and_port)
 
     for snapshot in reader:
-        print(snapshot)
         with Connection.connect(*address_and_port) as connection:
             user = reader.user
             hello_message = protocol.Hello(user.id, user.name, user.birth_date, user.gender)
@@ -46,6 +45,8 @@ def upload_sample(path, address, file_format):
             config_message = connection.receive_message()
             config = protocol.Config.deserialize(config_message)
             snapshot_message = protocol.Snapshot(snapshot.timestamp)
+            print(snapshot.timestamp)
             for field in config.fields:
                 setattr(snapshot_message,field, snapshot.__dict__[field])
             connection.send_message(snapshot_message.serialize())
+            break
