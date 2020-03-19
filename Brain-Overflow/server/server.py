@@ -68,7 +68,7 @@ class Handler(threading.Thread):
                 #print (p)
                 supported_parsers[p](con, snapshot)
 
-            #TODO - what about the case there are multiple snapshot is the same time??
+            #TODO -  HANDLE MULTIPLE clients same time?
 
         finally:
             self.lock.release()
