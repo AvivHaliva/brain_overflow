@@ -1,4 +1,5 @@
 from cortex_pb2 import User, Snapshot
+#TODO rename cortex_pb2
 import struct
 import gzip
 from utils import user
