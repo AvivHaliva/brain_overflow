@@ -57,7 +57,8 @@ class BinaryReader:
 
 		depth_image_width, depth_image_height = BinaryReader.read_in_format(self.file, 'II')
 		depth_image_size = depth_image_height * depth_image_width
-		depth_image_vals = self.file.read(4*depth_image_size)
+		depth_image_vals_raw = self.file.read(4*depth_image_size)
+		depth_image_vals = struct.unpack('{0}f'.format(depth_image_size), depth_image_vals_raw)
 		depth_image = (depth_image_height, depth_image_width, depth_image_vals)
 
 		user_feelings = BinaryReader.read_in_format(self.file, 'ffff')
