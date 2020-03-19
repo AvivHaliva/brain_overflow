@@ -54,7 +54,6 @@ class Handler(threading.Thread):
             if not p.exists():
                 p.mkdir()
             datetime = dt.datetime.fromtimestamp(snapshot.timestamp/1000.0)
-            print(datetime)
             datetime_in_format = datetime.strftime(TIME_RECORD_FORMAT)
             user_time_record_dir = Path(user_dir + '/' + \
                 datetime_in_format )
@@ -63,9 +62,10 @@ class Handler(threading.Thread):
                 user_time_record_dir.mkdir()
 
             #parse the supported fields
+            #TODO - should pass the parsers only what it needs?
             con = context.Context(user_time_record_dir)
             for p in supported_parsers:
-                print (p)
+                #print (p)
                 supported_parsers[p](con, snapshot)
 
             #TODO - what about the case there are multiple snapshot is the same time??
@@ -85,7 +85,10 @@ def run_server(address, data_dir):
     server = Listener(address[1], address[0])
     server.start()
 
+    i = 0
     while True:
+        print(i)
+        i = i+1
         client = server.accept()
         handler = Handler(client, str(data_dir))
         handler.start()
