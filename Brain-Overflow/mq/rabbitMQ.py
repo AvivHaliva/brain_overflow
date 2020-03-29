@@ -7,7 +7,7 @@ class RabbitMQ:
     self.channel = self.connection.channel()
 
   def declare_queue(self, queue_name):
-    self.channel.queue_declare(queue=queue_name)
+    self.channel.queue_declare(queue=queue_name, exclusive=True)
 
   def declare_broadcast_queue(self, queue_name):
     self.channel.exchange_declare(exchange=queue_name, exchange_type='fanout')
