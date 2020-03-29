@@ -1,7 +1,7 @@
 from server import run_server
 from client import upload_sample
 from web import run_webserver
-from utils import reader, run_parser
+from utils import reader, run_parser_command, parse
 
 import click
 
@@ -14,5 +14,6 @@ cli.add_command(run_webserver)
 cli.add_command(reader.read)
 cli.add_command(upload_sample)
 
-cli.add_command(run_parser)
+cli.add_command(run_parser_command)
+cli.add_command(parse)
 

@@ -24,11 +24,18 @@ class Parser:
 							pass
 
 
+def run_parser(parser_name, data):
+	parserManager = Parser()
+	p = parserManager.supported_parsers[parser_name]
+	if p is None:
+		return
+	return p(data)
+
 
 @click.command('run-parser')
 @click.argument('parser_name')
 @click.argument('message_queue_url')
-def run_parser(parser_name, message_queue_url):
+def run_parser_command(parser_name, message_queue_url):
 	parserManager = Parser()
 	p = parserManager.supported_parsers[parser_name]
 	if p is None:
@@ -44,4 +51,15 @@ def run_parser(parser_name, message_queue_url):
 
 	mq.consume_from_queue(parser_name, callback)
 
-		
+@click.command('parse')
+@click.argument('parser_name')
+@click.argument('input_path')
+def parse(parser_name, input_path):
+	parserManager = Parser()	
+	p = parserManager.supported_parsers[parser_name]
+	if p is None:
+		return	
+	with open(input_path, 'r') as f:
+		data = f.read()
+		res = p(data)
+		print(res)
