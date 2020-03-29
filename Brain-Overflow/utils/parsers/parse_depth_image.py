@@ -1,18 +1,23 @@
 from matplotlib import pyplot as plt
 import numpy as np
 
-def parse_depth_image(context, snapshot):
-	try:
-		data = snapshot.depth_image[2]
-		rows = snapshot.depth_image[0]
-		cols = snapshot.depth_image[1]
-		matrix = np.reshape(data, (rows, cols))
-		plt.imshow(matrix, cmap=plt.cm.RdBu)
-		path = context.path('depth_image.png')
-		plt.savefig(path)
-	except Exception as e:
-		print('error in depth_image in :')
-		print(snapshot.timestamp)
+# def parse_depth_image(context, snapshot):
+# 	try:
+# 		data = snapshot.depth_image[2]
+# 		rows = snapshot.depth_image[0]
+# 		cols = snapshot.depth_image[1]
+# 		matrix = np.reshape(data, (rows, cols))
+# 		plt.imshow(matrix, cmap=plt.cm.RdBu)
+# 		path = context.path('depth_image.png')
+# 		plt.savefig(path)
+# 	except Exception as e:
+# 		print('error in depth_image in :')
+# 		print(snapshot.timestamp)
+
+def parse_depth_image(body):
+	x = json.loads(body)
+	print('depth image')
+	print(x['timestamp'])
 
 parse_depth_image.field = 'depth_image'
 

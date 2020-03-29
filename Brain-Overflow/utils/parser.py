@@ -1,6 +1,8 @@
 import pathlib
 import importlib
 import sys
+import click
+from mq import MessageQueue
 
 class Parser:
 	def __init__(self):
@@ -20,4 +22,26 @@ class Parser:
 							self.supported_parsers[parse_f.field] = parse_f
 						except:
 							pass
-	
+
+
+
+@click.command('run-parser')
+@click.argument('parser_name')
+@click.argument('message_queue_url')
+def run_parser(parser_name, message_queue_url):
+	parserManager = Parser()
+	p = parserManager.supported_parsers[parser_name]
+	if p is None:
+		return
+
+	mq = MessageQueue(message_queue_url)
+	mq.declare_broadcast_queue('snapshots_raw')
+	mq.declare_queue(parser_name)
+	mq.bind_queue_to_exchange(parser_name, 'snapshots_raw')
+
+	def callback(ch, method, properties, body):
+		return p(body)
+
+	mq.consume_from_queue(parser_name, callback)
+
+		

@@ -1,23 +1,28 @@
 from PIL import Image
+import json
 
-def parse_color_image(context, snapshot):
-	#TODO - change w and h order -> remove it from parser!
-	color_image = snapshot.color_image
-	width = color_image[0]
-	height = color_image[1]
-	data = color_image[2]
+# def parse_color_image(context, snapshot):
+# 	#TODO - change w and h order -> remove it from parser!
+# 	color_image = snapshot.color_image
+# 	width = color_image[0]
+# 	height = color_image[1]
+# 	data = color_image[2]
 
-	path = context.path('color_image.jpg')
-	#TODO - chnage to -> size = snapshot.color_image.width, snapshot.color_image.heigh
-	size = width, height
-	image = Image.frombytes('RGB', size, data)
-	#TODO - see Gittik's comment: ex06,Decemeber 11, 3:44 pm
-	#data_flat_pixel = [data[i:i+3] for i in range(0, len(data), 3)]
-	#image = Image.new('RGB', (width, height))
-	#image.putdata(data_flat_pixel)
-	#image.putdata(data)
-	#TODO - chnage to ->image.putdata(snapshot.color_image.data)
-	image.save(path)
+# 	path = context.path('color_image.jpg')
+# 	#TODO - chnage to -> size = snapshot.color_image.width, snapshot.color_image.heigh
+# 	size = width, height
+# 	image = Image.frombytes('RGB', size, data)
+# 	#TODO - see Gittik's comment: ex06,Decemeber 11, 3:44 pm
+# 	#data_flat_pixel = [data[i:i+3] for i in range(0, len(data), 3)]
+# 	#image = Image.new('RGB', (width, height))
+# 	#image.putdata(data_flat_pixel)
+# 	#image.putdata(data)
+# 	#TODO - chnage to ->image.putdata(snapshot.color_image.data)
+# 	image.save(path)
+def parse_color_image(body):
+	x = json.loads(body)
+	print('color image')
+	print(x['timestamp'])
 
 parse_color_image.field = 'color_image'
 
