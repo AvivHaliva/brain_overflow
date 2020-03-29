@@ -1,7 +1,8 @@
 from server import run_server
 from client import upload_sample
 from web import run_webserver
-from utils import reader, run_parser_command, parse
+from utils import reader
+from parsers import run_parser_command, parse
 
 import click
 

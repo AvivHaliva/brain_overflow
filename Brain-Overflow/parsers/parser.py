@@ -7,7 +7,7 @@ from mq import MessageQueue
 class Parser:
 	def __init__(self):
 		self.supported_parsers = {}
-		self.load_parsers('/home/user/Brain-Overflow/Brain-Overflow/utils/parsers/')
+		self.load_parsers('/home/user/Brain-Overflow/Brain-Overflow/parsers/')
 
 	def load_parsers(self, root):
 		root = pathlib.Path(root).absolute()

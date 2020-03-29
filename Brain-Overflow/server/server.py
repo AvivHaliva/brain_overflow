@@ -10,7 +10,7 @@ from utils import Connection
 from utils import Listener
 import click
 from utils import protocol
-from utils.parsers import parser
+from parsers import parser
 from utils import context
 from mq import MessageQueue
 import json
