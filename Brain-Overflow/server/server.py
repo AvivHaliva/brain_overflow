@@ -76,7 +76,7 @@ class Handler(threading.Thread):
 @click.command()
 @click.option('-h', '--host', default = '127.0.0.1', type=str)
 @click.option('-p', '--port', default = 8000, type=int)
-@click.argument('message_queue_url',)
+@click.argument('message_queue_url')
 def run_server(host, port, message_queue_url):
 
     server = Listener(int(port), host)
