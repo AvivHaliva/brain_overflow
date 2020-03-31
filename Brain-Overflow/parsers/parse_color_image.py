@@ -1,28 +1,18 @@
 from PIL import Image
-import json
+from utils import context
 
-# def parse_color_image(context, snapshot):
-# 	#TODO - change w and h order -> remove it from parser!
-# 	color_image = snapshot.color_image
-# 	width = color_image[0]
-# 	height = color_image[1]
-# 	data = color_image[2]
+def parse_color_image(snapshot):
+	color_image_w, color_image_h, color_image_raw_path = snapshot['color_image']
+	color_image_context = context.Context(snapshot['user_id'], snapshot['timestamp'], 'color_image')
+	color_image_parsed_path = color_image_context.get_path('parsed.jpg')
 
-# 	path = context.path('color_image.jpg')
-# 	#TODO - chnage to -> size = snapshot.color_image.width, snapshot.color_image.heigh
-# 	size = width, height
-# 	image = Image.frombytes('RGB', size, data)
-# 	#TODO - see Gittik's comment: ex06,Decemeber 11, 3:44 pm
-# 	#data_flat_pixel = [data[i:i+3] for i in range(0, len(data), 3)]
-# 	#image = Image.new('RGB', (width, height))
-# 	#image.putdata(data_flat_pixel)
-# 	#image.putdata(data)
-# 	#TODO - chnage to ->image.putdata(snapshot.color_image.data)
-# 	image.save(path)
-def parse_color_image(body):
-	x = json.loads(body)
-	print('color image')
-	print(x['timestamp'])
+	#TODO - remove file handling from the parser
+	with open(color_image_raw_path, 'rb') as f:
+		raw_image = f.read()
+
+	size = (color_image_w , color_image_h)
+	image = Image.frombytes('RGB' , size, raw_image)
+	image.save(color_image_parsed_path)
 
 parse_color_image.field = 'color_image'
 

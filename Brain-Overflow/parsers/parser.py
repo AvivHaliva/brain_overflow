@@ -3,6 +3,7 @@ import importlib
 import sys
 import click
 from mq import MessageQueue
+import json
 
 class Parser:
 	def __init__(self):
@@ -42,12 +43,28 @@ def run_parser_command(parser_name, message_queue_url):
 		return
 
 	mq = MessageQueue(message_queue_url)
-	mq.declare_broadcast_queue('snapshots_raw')
+	mq.declare_topic_exchange('snapshots_raw')
 	mq.declare_queue(parser_name)
-	mq.bind_queue_to_exchange(parser_name, 'snapshots_raw')
+	routing_key = parser_name +'.raw'
+	mq.bind_queue_to_exchange(parser_name, 'snapshots_raw', routing_key)
 
 	def callback(ch, method, properties, body):
-		return p(body)
+		recieved_message = json.loads(body)
+		parser_res = p(recieved_message)
+		routing_key = parser_name + '.parsed'
+		mq.declare_topic_exchange('snapshots_parsed')
+
+		if parser_name != 'user_info':
+			message = {'parser_name': parser_name,
+				'data': {'user_id': recieved_message['user_id'],
+			 	'timestamp': recieved_message['timestamp'], 
+			 	parser_name : parser_res}
+			 }
+		else:
+			message =  {'parser_name': parser_name,
+				'data': { parser_name : parser_res}}
+
+		mq.publish_to_queue('snapshots_parsed', routing_key , json.dumps(message))
 
 	mq.consume_from_queue(parser_name, callback)
 

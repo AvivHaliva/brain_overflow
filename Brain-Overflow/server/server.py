@@ -23,6 +23,13 @@ TIME_RECORD_FORMAT = "%Y-%m-%d_%H-%M-%S-%f" #TODO - change format to *5* ms!
 def serialize_message(user, snapshot):
     color_image_w, color_image_h, color_image_data = snapshot.color_image
     depth_image_w, depth_image_h, depth_image_data = snapshot.depth_image
+    
+    color_image_context = context.Context(user.user_id, snapshot.timestamp, 'color_image')
+    color_image_raw_path = color_image_context.save('raw', color_image_data, 'wb')
+
+    depth_image_context = context.Context(user.user_id, snapshot.timestamp, 'depth_image')
+    depth_image_raw_path = depth_image_context.save('raw', depth_image_data, 'wb')
+
     return json.dumps({
         'user_id': user.user_id,
         'user_name': user.user_name,
@@ -31,8 +38,8 @@ def serialize_message(user, snapshot):
         'timestamp': snapshot.timestamp,
         'translation': snapshot.translation,
         'rotation': snapshot.rotation,
-        'color_image': [color_image_w, color_image_h, color_image_data],
-        'depth_image': [depth_image_w, depth_image_h, depth_image_data],
+        'color_image': [color_image_w, color_image_h, color_image_raw_path],
+        'depth_image': [depth_image_w, depth_image_h, depth_image_raw_path],
         'feelings': snapshot.feelings})
 
 
@@ -83,9 +90,15 @@ def run_server(host, port, message_queue_url):
     server.start()
 
     def publish_to_mq(message):
+        p = parser.Parser()
+        supported_parsers = p.supported_parsers
+
         mq = MessageQueue(message_queue_url)
-        mq.declare_broadcast_queue('snapshots_raw')
-        mq.publish_to_queue('snapshots_raw', '', message)
+        mq.declare_topic_exchange('snapshots_raw')
+
+        for parser_name in supported_parsers:
+            routing_key = parser_name + '.raw'
+            mq.publish_to_queue('snapshots_raw', routing_key , message)
         #mq.close()
 
     while True:

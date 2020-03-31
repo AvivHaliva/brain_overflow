@@ -1,7 +1,5 @@
 import json
-def parse_feelings(body):
-	x = json.loads(body)
-	print('feelings:')
-	print(x['timestamp'])
+def parse_feelings(snapshot):
+	return snapshot['feelings']
 
 parse_feelings.field = 'feelings'

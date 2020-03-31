@@ -126,10 +126,8 @@ class Snapshot:
 		offset = 'Q3d4dII'
 		color_image_vals = None
 		if color_img_size > 0:
-			color_image_vals = struct.unpack_from('{0}B'.format(color_img_size*3), data, struct.calcsize(offset))
-			#color_image_vals = struct.unpack_from('{0}s'.format(color_img_size*3), data,struct.calcsize(offset))
-			#offset_int = struct.calcsize(offset)
-			#color_image_vals = data[offset_int : offset_int + color_img_size*3]
+			offset_int = struct.calcsize(offset)
+			color_image_vals = data[offset_int : offset_int + color_img_size*3]
 			offset += '{0}B'.format(color_img_size*3)
 
 		depth_image_dim = struct.unpack_from('II', data,struct.calcsize(offset))
@@ -137,7 +135,8 @@ class Snapshot:
 		offset += 'II'
 		depth_image_vals = None
 		if depth_image_size > 0:
-			depth_image_vals = struct.unpack_from('{0}f'.format(depth_image_size), data, struct.calcsize(offset))
+			#depth_image_vals = struct.unpack_from('{0}f'.format(depth_image_size), data, struct.calcsize(offset))
+			depth_image_vals = data[offset_int : offset_int + struct.calcsize('{0}f'.format(depth_image_size))]
 			offset += '{0}f'.format(depth_image_size)
 		feelings = struct.unpack_from('4f', data, struct.calcsize(offset))
 
