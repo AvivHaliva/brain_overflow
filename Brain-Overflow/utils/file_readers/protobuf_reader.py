@@ -1,4 +1,4 @@
-from cortex_pb2 import User, Snapshot
+from .protobuf_sample_format_pb2 import User, Snapshot
 #TODO rename cortex_pb2
 import struct
 import gzip
