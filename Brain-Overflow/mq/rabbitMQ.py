@@ -9,17 +9,17 @@ class RabbitMQ:
   def declare_queue(self, queue_name):
     self.channel.queue_declare(queue=queue_name, exclusive=True)
 
-  def declare_broadcast_queue(self, queue_name):
-    self.channel.exchange_declare(exchange=queue_name, exchange_type='fanout')
+  def declare_topic_exchange(self, exchange_name):
+    self.channel.exchange_declare(exchange=exchange_name, exchange_type='topic')
 
   def publish_to_queue(self, queue_name, routing_key, message):
     self.channel.basic_publish(exchange=queue_name,
                     routing_key=routing_key,
                     body=message)
     
-  def bind_queue_to_exchange(self, queue_name, exchange_name):
+  def bind_queue_to_exchange(self, queue_name, exchange_name, routing_key):
     self.channel.queue_bind(exchange=exchange_name,
-                 queue=queue_name)
+                 queue=queue_name, routing_key=routing_key)
 
   def consume_from_queue(self, queue_name, callback):
     self.channel.basic_consume(

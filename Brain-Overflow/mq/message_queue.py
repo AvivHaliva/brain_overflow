@@ -1,4 +1,4 @@
-from .rabbitMQ import RabbitMQ
+from mq.rabbitMQ import RabbitMQ
 import furl
 
 
@@ -25,14 +25,14 @@ class MessageQueue:
 	def declare_queue(self, queue_name):
 		self.mq.declare_queue(queue_name)
 
-	def declare_broadcast_queue(self, queue_name):
-		self.mq.declare_broadcast_queue(queue_name)
+	def declare_topic_exchange(self, exchange_name):
+		self.mq.declare_topic_exchange(exchange_name)
 
 	def publish_to_queue(self, queue_name, routing_key, message):
 		self.mq.publish_to_queue(queue_name, routing_key, message)
 
-	def bind_queue_to_exchange(self, queue_name, exchange_name):
-		self.mq.bind_queue_to_exchange(queue_name, exchange_name)
+	def bind_queue_to_exchange(self, queue_name, exchange_name, routing_key=''):
+		self.mq.bind_queue_to_exchange(queue_name, exchange_name, routing_key)
 
 	def consume_from_queue(self, queue_name, callback):
 		self.mq.consume_from_queue(queue_name, callback)
