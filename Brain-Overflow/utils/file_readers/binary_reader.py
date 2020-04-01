@@ -15,12 +15,6 @@ class BinaryReader:
 		#TODO 
 		return 'reader = BinaryReader(path)\nreader.user\n '
 
-	def process_file(self):
-		#yield self.get_user_info(file)
-		snapshots_gen = self.gen_snapshots()
-		for s in snapshots_gen:
-			yield s
-
 	def get_user_info(self):
 		user_id, user_name_size = BinaryReader.read_in_format(self.file, 'li')
 		username, = BinaryReader.read_in_format(self.file,'{0}s'.format(user_name_size))
@@ -78,18 +72,8 @@ class BinaryReader:
 		*user_feelings
 		)
 
-
-	def gen_snapshots(self):
-		try:
-			snapshot = self.construct_snapshot()
-			while snapshot:
-				yield snapshot
-				snapshot = self.construct_snapshot()
-		except Exception as e:
-			print(e)
-		finally:
-			self.file.close()
-			return 
+	def get_next_snapshot(self):
+ 		return self.construct_snapshot()
 
 ##### Binary utilities #####
 	def bgr_to_rgb(raw_img_bin):

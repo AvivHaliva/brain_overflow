@@ -18,8 +18,16 @@ class Reader():
 		#return 'reader = Reader(<file>, <file_parser>).for example: reader = Reader('sample.mind',BinaryReader)'
 
 	def __iter__(self):
-		for snapshot in self.file_parser.process_file():
-			yield snapshot
+		try:
+			snapshot = self.file_parser.get_next_snapshot()
+			while snapshot:
+				yield snapshot
+				snapshot = self.file_parser.get_next_snapshot()
+		except Exception as e:
+			print(e)
+		finally:
+			self.file_parser.file.close()
+			return 
 
 	def load_file_parsers(self, root):
 		root = pathlib.Path(root).absolute()
