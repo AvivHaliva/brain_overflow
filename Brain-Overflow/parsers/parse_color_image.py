@@ -14,5 +14,9 @@ def parse_color_image(snapshot):
 	image = Image.frombytes('RGB' , size, raw_image)
 	image.save(color_image_parsed_path)
 
+	return {'width': color_image_w,
+		'height': color_image_h, 
+		'parsed_path': str(color_image_parsed_path)}
+
 parse_color_image.field = 'color_image'
 

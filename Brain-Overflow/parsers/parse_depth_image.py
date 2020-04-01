@@ -17,4 +17,8 @@ def parse_depth_image(snapshot):
 	plt.imshow(matrix, cmap='hot', interpolation='nearest')
 	plt.savefig(depth_image_parsed_path)
 
+	return {'width': depth_image_w,
+			'height': depth_image_h, 
+			'parsed_path': str(depth_image_parsed_path)}
+
 parse_depth_image.field = 'depth_image'
