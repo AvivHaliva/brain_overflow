@@ -2,7 +2,7 @@ import struct
 import os
 import datetime as dt
 import click
-import formats.client_server_communication as client_server_communication_encoder
+import utils.formats.client_server_communication as client_server_communication_encoder
 
 class BinaryReader:
 	def __init__(self, path):

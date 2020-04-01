@@ -1,5 +1,5 @@
-from formats.protobuf_sample import User, Snapshot
-import formats.client_server_communication as client_server_communication_encoder
+from utils.formats.protobuf_sample import User, Snapshot
+import utils.formats.client_server_communication as client_server_communication_encoder
 import struct
 import gzip
 
