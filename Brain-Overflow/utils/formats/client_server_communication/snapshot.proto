@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+message SnapshotFormatted {
+    uint64 datetime = 1;
+    PoseFormatted pose = 2;
+    ColorImageFormatted color_image = 3;
+    DepthImageFormatted depth_image = 4;
+    FeelingsFormatted feelings = 5;
+}
+
+message PoseFormatted {
+    message TranslationFormatted {
+        double x = 1;
+        double y = 2;
+        double z = 3;
+    }
+    message RotationFormatted {
+        double x = 1;
+        double y = 2;
+        double z = 3;
+        double w = 4;
+    }
+    TranslationFormatted translation = 1;
+    RotationFormatted rotation = 2;
+}
+
+message ColorImageFormatted {
+    uint32 width = 1;
+    uint32 height = 2;
+    bytes data = 3;
+}
+
+message DepthImageFormatted {
+    uint32 width = 1;
+    uint32 height = 2;
+    repeated float data = 3;
+}
+
+message FeelingsFormatted {
+    float hunger = 1;
+    float thirst = 2;
+    float exhaustion = 3;
+    float happiness = 4;
+}
+

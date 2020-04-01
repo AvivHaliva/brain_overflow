@@ -12,8 +12,7 @@ def parse_depth_image(snapshot):
 	with open(depth_image_raw_path, 'rb') as f:
 		data = struct.unpack('{0}f'.format(depth_image_w*depth_image_h), f.read())
 
-	import pdb; pdb.set_trace()
-	matrix = np.reshape(data, (depth_image_w, depth_image_h))
+	matrix = np.reshape(data, (depth_image_h, depth_image_w))
 	plt.imshow(matrix, cmap=plt.cm.RdBu)
 	plt.imshow(matrix, cmap='hot', interpolation='nearest')
 	plt.savefig(depth_image_parsed_path)

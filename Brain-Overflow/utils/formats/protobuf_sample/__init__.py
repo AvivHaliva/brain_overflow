@@ -1,0 +1,1 @@
+from .protobuf_sample_format_pb2 import User, Snapshot

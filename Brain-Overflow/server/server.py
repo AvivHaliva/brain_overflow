@@ -9,11 +9,12 @@ from thought import Thought
 from utils import Connection
 from utils import Listener
 import click
-from utils import protocol
 from parsers import parser
 from utils import context
 from mq import MessageQueue
 import json
+import struct
+from utils.formats.client_server_communication import *
 
 MAX_CLIENTS_NUMBER = 1000
 HEADER_FORMAT = 'lli'
@@ -21,26 +22,29 @@ INCOMPLETE_MESSAGE_ERR = 'incomplete message'
 TIME_RECORD_FORMAT = "%Y-%m-%d_%H-%M-%S-%f" #TODO - change format to *5* ms!
 
 def serialize_message(user, snapshot):
-    color_image_w, color_image_h, color_image_data = snapshot.color_image
-    depth_image_w, depth_image_h, depth_image_data = snapshot.depth_image
+    color_image_w, color_image_h, color_image_data = get_color_image_as_tuple(snapshot)
+    depth_image_w, depth_image_h, depth_image_data = get_depth_image_as_tuple(snapshot)
     
-    color_image_context = context.Context(user.user_id, snapshot.timestamp, 'color_image')
+    color_image_context = context.Context(user.user_id, snapshot.datetime, 'color_image')
     color_image_raw_path = color_image_context.save('raw', color_image_data, 'wb')
 
-    depth_image_context = context.Context(user.user_id, snapshot.timestamp, 'depth_image')
-    depth_image_raw_path = depth_image_context.save('raw', depth_image_data, 'wb')
+    size = depth_image_w * depth_image_h
+    depth_image_data_bin = struct.pack('{0}f'.format(size), *depth_image_data)
+
+    depth_image_context = context.Context(user.user_id, snapshot.datetime, 'depth_image')
+    depth_image_raw_path = depth_image_context.save('raw', depth_image_data_bin, 'wb')
 
     return json.dumps({
-        'user_id': user.user_id,
-        'user_name': user.user_name,
-        'birthday': user.user_birth_date,
-        'gender': user.user_gender,
-        'timestamp': snapshot.timestamp,
-        'translation': snapshot.translation,
-        'rotation': snapshot.rotation,
+        'user_id': get_id(user),
+        'user_name': get_username(user),
+        'birthday': get_birthday(user),
+        'gender': get_gender(user),
+        'timestamp': get_datetime(snapshot),
+        'translation': get_translation_as_tuple(snapshot),
+        'rotation' : get_rotation_as_tuple(snapshot),
         'color_image': [color_image_w, color_image_h, color_image_raw_path],
         'depth_image': [depth_image_w, depth_image_h, depth_image_raw_path],
-        'feelings': snapshot.feelings})
+        'feelings': get_feelings_as_tuple(snapshot)})
 
 
 class Handler(threading.Thread):
@@ -53,27 +57,27 @@ class Handler(threading.Thread):
         self.to_publish = to_publish
 
     def run(self):
-        #the server gets a hello message from the client
-        hello_message = self.connection.receive_message()
-        hello = protocol.Hello.deserialize(hello_message)
+        #the server gets a user message from the client
+        user_message = self.connection.receive_message()
+        user = deserialize_user_message(user_message)
         
         #the server sends a config message to the client
         #TODO move parser initalization to the outside run / make singleton!
         p = parser.Parser()
         supported_parsers = p.supported_parsers
         #supported_parsers = parser.get_supported_functions()
-        config = protocol.Config(len(supported_parsers), list(supported_parsers.keys()))
-        self.connection.send_message(config.serialize())
+        #config = protocol.Config(len(supported_parsers), list(supported_parsers.keys()))
+        #self.connection.send_message(config.serialize())
         
         #the server gets a snapshot from the client
         snapshot_message = self.connection.receive_message()
-        snapshot = protocol.Snapshot.deserialize(snapshot_message)
+        snapshot = deserialize_snapshot_message(snapshot_message)
         #close the connection
         self.connection.close()
 
         self.lock.acquire()
         try:
-            serialized_message = serialize_message(hello , snapshot)
+            serialized_message = serialize_message(user , snapshot)
             self.to_publish(serialized_message)
 
         finally:

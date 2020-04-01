@@ -5,7 +5,7 @@ from thought import Thought
 from utils import Connection
 import click
 from utils import Reader
-from utils import protocol
+from utils.formats.client_server_communication import serialize_message
 
 @click.command()
 @click.argument('address')
@@ -36,17 +36,16 @@ def upload_sample(path, address, file_format):
     address_and_port = address.split(':')
     address_and_port[1] = int(address_and_port[1])
     address_and_port = tuple(address_and_port)
-    i = 0
+
     for snapshot in reader:
-        print(i)
-        i = i + 1
         with Connection.connect(*address_and_port) as connection:
             user = reader.user
-            hello_message = protocol.Hello(user.id, user.name, user.birth_date, user.gender)
-            connection.send_message(hello_message.serialize())
-            config_message = connection.receive_message()
-            config = protocol.Config.deserialize(config_message)
-            snapshot_message = protocol.Snapshot(snapshot.timestamp)
-            for field in config.fields:
-                setattr(snapshot_message,field, snapshot.__dict__[field])
-            connection.send_message(snapshot_message.serialize())
+
+            connection.send_message(serialize_message(user))
+            #config_message = connection.receive_message()
+            #config = protocol.Config.deserialize(config_message)
+            #snapshot_message = protocol.Snapshot(snapshot.timestamp)
+            #for field in config.fields:
+            #    if field != 'user_info':
+            #        setattr(snapshot_message,field, snapshot.__dict__[field])
+            connection.send_message(serialize_message(snapshot))
