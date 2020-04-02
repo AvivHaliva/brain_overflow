@@ -11,7 +11,7 @@ class MongoDB:
 		users = self.db['users'] 
 		users.update_one(
 			{'user_id': data['user_id']},
-			{'$set':data}, 
+			{'$set': data}, 
 			upsert=True)
 
 	def get_user_info(self, user_id):
@@ -21,8 +21,8 @@ class MongoDB:
 
 	def get_snapshot(self, user_id, snapshot_id):
 		snapshots = self.db['snapshots']
-		availabe_results = snapshots.find_one({'user_id' : user_id, 'snapshot_id' : snapshot_id},
-			{'_id':False, 'snapshot_id':False, 'timestamp':False}).keys()
+		availabe_results = list(snapshots.find_one({'user_id' : user_id, 'snapshot_id' : snapshot_id},
+			{'_id':False, 'snapshot_id':False, 'timestamp':False}).keys())
 		timestamp = snapshots.find_one({'user_id' : user_id, 'snapshot_id' : snapshot_id},
 			{'_id':False, 'timestamp':True})
 
@@ -32,7 +32,6 @@ class MongoDB:
 			'timestamp' : timestamp,
 			'availabe_results' : availabe_results
 		}
-
 		return snapshot_metadata
 
 	def get_all_user_snapshots(self, user_id):
@@ -53,7 +52,7 @@ class MongoDB:
 	def save_snapshot_data(self, data):
 		snapshots = self.db['snapshots']
 		#TODO add snapshot_id to filter
-		snapshots.update_one({'user_id': data['user_id'] , 'timestamp':data['timestamp']},
+		snapshots.update_one({'user_id': data['user_id'] , 'timestamp': data['timestamp']},
 			{'$set':data},
 			upsert=True)
 
