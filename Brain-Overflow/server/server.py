@@ -1,50 +1,20 @@
 import socket
 import time
-import datetime
-import datetime as dt
 import threading
-from pathlib import Path
-import struct
 from thought import Thought
 from utils import Connection
 from utils import Listener
 import click
 from parsers import parser
-from utils import context
 from mq import MessageQueue
-import json
 import struct
-from utils.formats.client_server_communication import *
+from utils.formats.client_server_communication import deserialize_user_message, deserialize_snapshot_message
+from utils.formats.server_output_message import gen_server_output_message
 
 MAX_CLIENTS_NUMBER = 1000
 HEADER_FORMAT = 'lli'
 INCOMPLETE_MESSAGE_ERR = 'incomplete message'
 TIME_RECORD_FORMAT = "%Y-%m-%d_%H-%M-%S-%f" #TODO - change format to *5* ms!
-
-def serialize_message(user, snapshot):
-    color_image_w, color_image_h, color_image_data = get_color_image_as_tuple(snapshot)
-    depth_image_w, depth_image_h, depth_image_data = get_depth_image_as_tuple(snapshot)
-    
-    color_image_context = context.Context(user.user_id, snapshot.datetime, 'color_image')
-    color_image_raw_path = color_image_context.save('raw', color_image_data, 'wb')
-
-    size = depth_image_w * depth_image_h
-    depth_image_data_bin = struct.pack('{0}f'.format(size), *depth_image_data)
-
-    depth_image_context = context.Context(user.user_id, snapshot.datetime, 'depth_image')
-    depth_image_raw_path = depth_image_context.save('raw', depth_image_data_bin, 'wb')
-
-    return json.dumps({
-        'user_id': get_id(user),
-        'user_name': get_username(user),
-        'birthday': get_birthday(user),
-        'gender': get_gender(user),
-        'timestamp': get_datetime(snapshot),
-        'translation': get_translation_as_tuple(snapshot),
-        'rotation' : get_rotation_as_tuple(snapshot),
-        'color_image': [color_image_w, color_image_h, color_image_raw_path],
-        'depth_image': [depth_image_w, depth_image_h, depth_image_raw_path],
-        'feelings': get_feelings_as_tuple(snapshot)})
 
 
 class Handler(threading.Thread):
@@ -77,8 +47,8 @@ class Handler(threading.Thread):
 
         self.lock.acquire()
         try:
-            serialized_message = serialize_message(user , snapshot)
-            self.to_publish(serialized_message)
+            output_message = gen_server_output_message(user , snapshot)
+            self.to_publish(output_message)
 
         finally:
             self.lock.release()
