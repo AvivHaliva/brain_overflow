@@ -67,4 +67,3 @@ def run_server(host, port, message_queue_url):
     
     run_server_imp(host, port, publish_to_mq)
 
-# REMOVE COMMENT
