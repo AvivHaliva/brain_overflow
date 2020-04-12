@@ -1,4 +1,4 @@
-import utils.formats.server_output_message as mq_snapshot_output_encoder
+from .. import server_output_message as mq_snapshot_output_encoder
 import json
 
 # fields naming #

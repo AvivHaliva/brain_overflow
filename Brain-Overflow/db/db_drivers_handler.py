@@ -1,4 +1,4 @@
-from db.mongo_db import MongoDB
+from .mongo_db import MongoDB
 
 supported_db_drivers = {'mongodb://': MongoDB}
 

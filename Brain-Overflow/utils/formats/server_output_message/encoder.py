@@ -1,8 +1,8 @@
 import json
-from utils import context
+from ... import context
 import struct
 import datetime as dt
-from utils.formats.client_server_communication import *
+from ..client_server_communication import *
 
 # fields naming #
 USER_ID = 'user_id'

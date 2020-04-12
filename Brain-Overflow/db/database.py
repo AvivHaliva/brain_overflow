@@ -1,4 +1,4 @@
-import db.db_drivers_handler
+from . import db_drivers_handler
 
 class DataBase:
 	def __init__(self, url):

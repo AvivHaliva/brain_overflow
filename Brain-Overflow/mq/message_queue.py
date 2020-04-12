@@ -1,4 +1,4 @@
-from mq.rabbitMQ import RabbitMQ
+from .rabbitMQ import RabbitMQ
 import furl
 
 

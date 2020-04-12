@@ -1,15 +1,12 @@
 import socket
 import time
 import threading
-from thought import Thought
-from utils import Connection
-from utils import Listener
 import click
-from parsers import parser
-from mq import MessageQueue
+from ..parsers import parser
+from ..mq import MessageQueue
 import struct
-from utils.formats.client_server_communication import deserialize_client_message
-from utils.formats.server_output_message import gen_server_output_message
+from ..utils.formats.client_server_communication import deserialize_client_message
+from ..utils.formats.server_output_message import gen_server_output_message
 
 from flask import Flask
 from flask import request

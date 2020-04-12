@@ -1,9 +1,9 @@
-from server import run_server
-from client import upload_sample
-from web import run_webserver
-from utils import reader
-from parsers import run_parser_command, parse
-from saver import __main__ as s
+from .server import run_server
+from .client import upload_sample
+from .web import run_webserver
+from .utils import reader
+from .parsers import run_parser_command, parse
+from .saver import __main__ as s
 
 import click
 

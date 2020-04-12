@@ -2,11 +2,9 @@
 import socket
 import time
 import struct
-from thought import Thought
-from utils import Connection
 import click
-from utils import Reader
-from utils.formats.client_server_communication import gen_client_message
+from ..utils import Reader
+from ..utils.formats.client_server_communication import gen_client_message
 
 import requests
 import json

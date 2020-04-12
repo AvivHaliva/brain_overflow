@@ -1,5 +1,5 @@
 import click
-from mq import MessageQueue
+from ..mq import MessageQueue
 from .saver import Saver
 
 @click.command()

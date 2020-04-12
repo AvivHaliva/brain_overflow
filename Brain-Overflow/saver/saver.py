@@ -1,6 +1,6 @@
 import click
-from db import DataBase
-from db import DataBase
+from ..db import DataBase
+from ..db import DataBase
 import json
 
 USER_INFO = 'user_info'
