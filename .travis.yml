@@ -1,9 +1,10 @@
 language: python
 python:
   - "3.8"
+cache: pip
 # command to install dependencies
 install:
   - pip install -r requirements.txt
 # command to run tests
-#script:
-#  - pytest
+script:
+  - pytest
