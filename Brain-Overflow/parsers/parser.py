@@ -37,6 +37,7 @@ def run_parser(parser_name, data):
 @click.argument('parser_name')
 @click.argument('message_queue_url')
 def run_parser_command(parser_name, message_queue_url):
+	#TODO - run parse only if its fields are supported?
 	parserManager = Parser()
 	p = parserManager.supported_parsers[parser_name]
 	if p is None:
@@ -49,7 +50,6 @@ def run_parser_command(parser_name, message_queue_url):
 	mq.bind_queue_to_exchange(parser_name, 'snapshots_raw', routing_key)
 
 	def callback(ch, method, properties, body):
-		#TODO - support multiple fields
 		input = gen_parser_input_message(body)
 		parser_res = p(input)
 		routing_key = parser_name + '.parsed'

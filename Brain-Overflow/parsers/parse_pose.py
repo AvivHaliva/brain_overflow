@@ -1,10 +1,10 @@
 
 
-def parse_pose(snapshot):
+def parse_pose(snapshot): 
 	return {
-	'translation' : snapshot['translation'],
-	'rotation' : snapshot['rotation']
+	'translation' : snapshot['pose']['translation'],
+	'rotation' : snapshot['pose']['rotation']	
 	}
 	
 #parse_pose.field = ('translation', 'rotation')
-parse_pose.field = 'translation'
+parse_pose.field = 'pose'
