@@ -11,11 +11,14 @@ USERNAME = 'username'
 BIRTHDAY = 'birthday'
 GENDER = 'gender'
 TIMESTAMP = 'timestamp'
+POSE = 'pose'
 TRANSLATION = 'translation'
 ROTATION = 'rotation'
 COLOR_IMAGE = 'color_image'
 DEPTH_IMAGE = 'depth_image'
 FEELINGS = 'feelings'
+PARSER_NAME = 'parser_name'
+USER_INFO = 'user_info'
 
 # formats #
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
@@ -38,15 +41,21 @@ def gen_server_output_message(user, snapshot):
         '{0}f'.format(depth_image_w * depth_image_h), *depth_image_data)
     depth_image_raw_path = save_bin_image(DEPTH_IMAGE_DIR, depth_image_data_bin, user_id, snapshot_id)
 
+    user_info = {
+        USERNAME : get_username(user),
+        BIRTHDAY: get_birthday_as_str(get_birthday(user)),
+        GENDER: get_gender(user),
+    }
+
     return json.dumps({
     USER_ID: user_id,
-    SNAPSHOT_ID :snapshot_id,
-    USERNAME: get_username(user),
-    BIRTHDAY: get_birthday_as_str(get_birthday(user)),
-    GENDER: get_gender(user),
+    USER_INFO : user_info,
+    SNAPSHOT_ID : snapshot_id,
+    POSE : {
+        TRANSLATION: get_translation_as_tuple(snapshot),
+        ROTATION : get_rotation_as_tuple(snapshot)
+        },
     TIMESTAMP: get_timestamp_as_str(get_datetime(snapshot) / 1000),
-    TRANSLATION: get_translation_as_tuple(snapshot),
-    ROTATION : get_rotation_as_tuple(snapshot),
     COLOR_IMAGE: [color_image_w, color_image_h, color_image_raw_path],
     DEPTH_IMAGE: [depth_image_w, depth_image_h, depth_image_raw_path],
     FEELINGS: get_feelings_as_tuple(snapshot)})

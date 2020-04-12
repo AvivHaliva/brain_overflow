@@ -1,6 +1,10 @@
 from .user_pb2 import UserFormatted
 from .snapshot_pb2 import SnapshotFormatted
 
+import json
+import struct
+import io
+
 # ******************** USER **************************** #
 
 def gen_formatted_user(user_id, username, birthday, gender):
@@ -111,6 +115,30 @@ def get_feelings_as_tuple(snapshot_message):
 
 def serialize_message(message):
 	return message.SerializeToString()
+
+def gen_formatted_snapshot_required_only(client_snapshot, fields):
+	fields.append('datetime')
+	for field in [field.name for field in client_snapshot.DESCRIPTOR.fields]:
+		if field not in fields:
+			client_snapshot.ClearField(field)
+	return client_snapshot
+
+
+def gen_client_message(user, snapshot, fields):
+	required_snapshot = gen_formatted_snapshot_required_only(snapshot, fields)
+	serialized_user = serialize_message(user)
+	serialized_snapshot = serialize_message(required_snapshot)
+	user_len = struct.pack('I', len(serialized_user))
+	snapshot_len = struct.pack('I', len(serialized_snapshot))
+	return user_len + serialized_user + snapshot_len + serialized_snapshot
+
+def deserialize_client_message(message):
+	message = io.BytesIO(message)
+	user_len, = struct.unpack('I', message.read(4))
+	user =  deserialize_user_message(message.read(user_len))
+	snapshot_len, = struct.unpack('I', message.read(4))
+	snapshot =  deserialize_snapshot_message(message.read(snapshot_len))
+	return user, snapshot
 
 def deserialize_user_message(message):
 	user = UserFormatted()
