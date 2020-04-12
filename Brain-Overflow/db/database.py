@@ -33,7 +33,6 @@ class DataBase:
 	def get_all_users(self):
 		return self.db_driver.get_all_users()
 
-
 	def save_snapshot_data(self, data):
 		try:
 			self.db_driver.save_snapshot_data(data)

@@ -1,6 +1,8 @@
 import pymongo
 
 #TODO - make sure user id in the queries is INT
+#TODO create table for each user snapshot: USER_ID_snapshots ->
+#if not such exists:
 
 class MongoDB:
 	def __init__(self, url):
@@ -22,10 +24,12 @@ class MongoDB:
 	def get_snapshot(self, user_id, snapshot_id):
 		snapshots = self.db['snapshots']
 		availabe_results = list(snapshots.find_one({'user_id' : user_id, 'snapshot_id' : snapshot_id},
-			{'_id':False, 'snapshot_id':False, 'timestamp':False}).keys())
+			{'_id':False, 'user_id':False, 
+			'snapshot_id':False, 'timestamp':False}).keys())
 		timestamp = snapshots.find_one({'user_id' : user_id, 'snapshot_id' : snapshot_id},
-			{'_id':False, 'timestamp':True})
+			{'_id':False, 'timestamp':True})['timestamp']
 
+		print(timestamp)
 		snapshot_metadata = {
 			'user_id': user_id,
 			'snapshot_id' : snapshot_id,
