@@ -1,3 +1,4 @@
+![build status](https://travis-ci.com/AvivHaliva/Brain-Overflow.svg?branch=master)
 # Brain-Overflow
 A system that supports a Brain Computer Interface — imaginary hardware (for now...) that can read minds, and upload snapshots of cognitions.
 
