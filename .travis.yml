@@ -1,14 +1,13 @@
 language: python
 python:
   - "3.8"
-cache: pip
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
+  - ./scripts/install.sh
+  - source .env/bin/activate
 # command to run tests
 script:
-  - pytest
-  - coverage run tests.py
+  - pytest --cov-report term --cov=Brain-Overflow
 # Push the results back to codecov
 after_success:
   - codecov
