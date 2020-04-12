@@ -8,3 +8,9 @@ install:
 # command to run tests
 script:
   - pytest
+  - coverage run tests.py
+# Push the results back to codecov
+after_success:
+  - codecov
+
+
