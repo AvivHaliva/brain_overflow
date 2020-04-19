@@ -1,5 +1,5 @@
-from utils.formats.protobuf_sample import User, Snapshot
-import utils.formats.client_server_communication as client_server_communication_encoder
+from brain_overflow.utils.formats.protobuf_sample import User, Snapshot
+from brain_overflow.utils.formats import client_server_communication as client_server_communication_encoder
 import struct
 import gzip
 

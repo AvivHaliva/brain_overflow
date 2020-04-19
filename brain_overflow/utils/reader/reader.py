@@ -5,9 +5,8 @@ import sys
 
 class Reader():
 	def __init__(self, path, file_format):
-		self.supported_parsers = {}
-		#TODO - change load parsers logic
-		self.load_file_readers('/home/user/Brain-Overflow/Brain-Overflow/utils/reader/file_readers/')
+		self.supported_parsers ={}
+		self.load_file_readers()
 		self.file_reader = self.get_file_reader(file_format)(path)
 		self.user = self.file_reader.get_user_info()
 
@@ -30,8 +29,8 @@ class Reader():
 			self.file_reader.file.close()
 			return 
 
-	def load_file_readers(self, root):
-		root = pathlib.Path(root).absolute()
+	def load_file_readers(self):
+		root = (pathlib.Path(__file__).parent / 'file_readers').absolute()
 		sys.path.insert(0, str(root.parent))
 		for path in root.iterdir():
 			if path.name.endswith('_reader.py'):
